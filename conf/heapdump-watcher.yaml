@@ -1,0 +1,15 @@
+---
+# 特殊字符得用双引号引用起来
+oss:
+	AccessKey = "LTAI5tQDeWweFCbCPb7N7bsY"
+	AccessSecret = "WnoDaAmH0OMrvDp48suIPizxiE0Eh5"
+	OssEndpoint = "oss-cn-beijing.aliyuncs.com"
+	BucketName = "devcloud-station1995"
+
+alarmMedium:
+   webhook_type: "dd"
+   webhook_url: "xx"
+
+filePath:
+   watch_path: "xxx"
+   
