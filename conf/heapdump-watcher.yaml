@@ -1,10 +1,11 @@
 ---
 # 特殊字符得用双引号引用起来
-oss:
-	AccessKey = "LTAI5tQDeWweFCbCPb7N7bsY"
-	AccessSecret = "WnoDaAmH0OMrvDp48suIPizxiE0Eh5"
-	OssEndpoint = "oss-cn-beijing.aliyuncs.com"
-	BucketName = "devcloud-station1995"
+storageInfo:
+   access_key: "LTAI5t75aC3EqxNYCMyBmbE8"
+   access_secret: "NYLIFCiNbixuDf7nNaFHEHeMzCF91L"
+   oss_endpoint: "oss-cn-guangzhou.aliyuncs.com"
+   bucket_name: "heapdump-watcher"
+   storage_type: "aliyun"  # oss类型, aliyun aws tx minio
 
 alarmMedium:
    webhook_type: "dd"
@@ -12,4 +13,3 @@ alarmMedium:
 
 filePath:
    watch_path: "xxx"
-   

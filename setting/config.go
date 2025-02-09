@@ -1,7 +1,7 @@
 package setting
 
 import (
-	"heapdump-watcher/models"
+	"heapdump_watcher/models"
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/sirupsen/logrus"
@@ -24,7 +24,7 @@ func InitConf() {
 	}
 
 	// 设置默认值,配置文件不存在的时候才会用这个默认值,存在就不用,默认配置文件一定要在viper.Unmarshal(Conf)之前设置
-	viper.SetDefault("sensecity.userfilepath", "conf/userInfo.txt")
+	// viper.SetDefault("oss.BucketName", "xxx")
 
 	// 将读取的配置信息保存至全局变量Conf
 	if err := viper.Unmarshal(Conf); err != nil {
