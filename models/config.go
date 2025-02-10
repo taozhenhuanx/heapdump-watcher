@@ -14,8 +14,9 @@ type Config struct {
 
 	// 匿名结构体---发送告警媒介信息
 	AlarmMedium struct {
-		WebhookURL  string `mapstructure:"webhook_url"`
-		WebhookType string `mapstructure:"webhook_type"`
+		WeChatKey     string `mapstructure:"wechat_key"`
+		WebhookType   string `mapstructure:"webhook_type"`
+		DingTalkToken string `mapstructure:"dingtalk_token"`
 	} `mapstructure:"alarmMedium"`
 
 	// 匿名结构体---监听的文件路径

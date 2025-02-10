@@ -8,8 +8,9 @@ storageInfo:
    storage_type: "aliyun"  # oss类型, aliyun aws tx minio
 
 alarmMedium:
-   webhook_type: "dd"
-   webhook_url: "xx"
+   webhook_type: "dd"    # 告警媒介类型
+   wechat_key: "xx"      # 企业微信群机器人的key
+   dingtalk_token: "xxx" # 钉钉群机器人token
 
 filePath:
    watch_path: "xxx"
