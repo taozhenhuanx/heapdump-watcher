@@ -2,12 +2,15 @@ package watchfile
 
 import (
 	"log"
+	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/fsnotify/fsnotify"
 )
 
+// event.Name 是当前正在被监听的文件路径+文件名
 func watchFiles() {
 	for {
 		select {
@@ -20,7 +23,7 @@ func watchFiles() {
 				if strings.HasSuffix(event.Name, "heapdump.prof") {
 					log.Printf("New heapdump file detected: %s", event.Name)
 					// 等待文件写入完成
-					if err := waitForFileCompletion(event.Name); err != nil {
+					if ok := isFileComplete(event.Name, 30.0, 2.0); ok != nil {
 						log.Printf("Failed to wait for file completion: %v", err)
 						continue
 					}
@@ -46,4 +49,49 @@ func watchFiles() {
 			log.Printf("Error: %v", err)
 		}
 	}
+}
+
+// 判断文件是否写入完成
+// isFileComplete 检查文件的大小是否在指定的最大时间内不变
+func isFileComplete(filePath string, maxDuration, checkInterval time.Duration) bool {
+	var initialSize int64
+	var err error
+
+	// 获取初始文件大小
+	if initialSize, err = getFileSize(filePath); err != nil {
+		log.Println("Error getting file size:", err)
+		return false
+	}
+
+	// 开始检查文件大小
+	startTime := time.Now()
+	for time.Since(startTime) < maxDuration {
+		time.Sleep(checkInterval) // 等待检查间隔
+
+		finalSize, err := getFileSize(filePath)
+		if err != nil {
+			log.Println("Error getting file size:", err)
+			return false
+		}
+
+		if finalSize != initialSize {
+			// 如果文件大小变化，重置初始大小并重置计时
+			initialSize = finalSize
+			startTime = time.Now()
+		}
+	}
+
+	return true
+}
+
+// 获取文件大小
+func getFileSize(filePath string) (int64, error) {
+	fileInfo, err := os.Stat(filePath)
+	if os.IsNotExist(err) {
+		return 0, nil // 文件不存在
+	}
+	if err != nil {
+		return 0, err
+	}
+	return fileInfo.Size(), nil
 }
