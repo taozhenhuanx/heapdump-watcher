@@ -1,9 +1,9 @@
 package watchfile
 
 import (
+	"fmt"
 	"log"
 	"os"
-	"path/filepath"
 	"strings"
 	"time"
 
@@ -12,6 +12,10 @@ import (
 
 // event.Name 是当前正在被监听的文件路径+文件名
 func watchFiles() {
+	watcher, err := fsnotify.NewWatcher()
+	if err != nil {
+		log.Fatalf("Failed to create fsnotify watcher: %v", err)
+	}
 	for {
 		select {
 		case event, ok := <-watcher.Events:
@@ -23,23 +27,23 @@ func watchFiles() {
 				if strings.HasSuffix(event.Name, "heapdump.prof") {
 					log.Printf("New heapdump file detected: %s", event.Name)
 					// 等待文件写入完成
-					if ok := isFileComplete(event.Name, 30.0, 2.0); ok != nil {
+					if ok := isFileComplete(event.Name, 30.0, 2.0); !ok {
 						log.Printf("Failed to wait for file completion: %v", err)
 						continue
 					}
-					// 上传文件到OSS
-					appName := filepath.Base(filepath.Dir(filepath.Dir(event.Name)))
-					err := uploadFileToOSS(event.Name, appName)
-					if err != nil {
-						log.Printf("Failed to upload file to OSS: %v", err)
-					} else {
-						log.Printf("File uploaded to OSS successfully: %s", event.Name)
-						// 发送企业微信告警通知
-						err = sendWechatAlert(appName)
-						if err != nil {
-							log.Printf("Failed to send WeChat alert: %v", err)
-						}
-					}
+					// // 上传文件到OSS
+					// appName := filepath.Base(filepath.Dir(filepath.Dir(event.Name)))
+					// err := uploadFileToOSS(event.Name, appName)
+					// if err != nil {
+					// 	log.Printf("Failed to upload file to OSS: %v", err)
+					// } else {
+					// 	log.Printf("File uploaded to OSS successfully: %s", event.Name)
+					// 	// 发送企业微信告警通知
+					// 	err = sendWechatAlert(appName)
+					// 	if err != nil {
+					// 		log.Printf("Failed to send WeChat alert: %v", err)
+					// 	}
+					// }
 				}
 			}
 		case err, ok := <-watcher.Errors:
@@ -88,10 +92,12 @@ func isFileComplete(filePath string, maxDuration, checkInterval time.Duration) b
 func getFileSize(filePath string) (int64, error) {
 	fileInfo, err := os.Stat(filePath)
 	if os.IsNotExist(err) {
+		log.Println("文件不存在:", err)
 		return 0, nil // 文件不存在
 	}
 	if err != nil {
 		return 0, err
 	}
+	fmt.Println("文件大小", fileInfo.Size())
 	return fileInfo.Size(), nil
 }
