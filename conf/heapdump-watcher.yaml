@@ -5,12 +5,12 @@ storageInfo:
    access_secret: "NYLIFCiNbixuDf7nNaFHEHeMzCF91L"
    oss_endpoint: "oss-cn-guangzhou.aliyuncs.com"
    bucket_name: "heapdump-watcher"
-   storage_type: "aliyun"  # oss类型, aliyun aws tx minio
+   storage_type: "aliyun"   # oss类型, aliyun aws tx minio
 
 alarmMedium:
-   webhook_type: "dd"    # 告警媒介类型
-   wechat_key: "xx"      # 企业微信群机器人的key
-   dingtalk_token: "xxx" # 钉钉群机器人token
+   webhook_type: "email"    # 告警媒介类型   (wechat、email、dingtalk)
+   wechat_key: "xx"         # 企业微信群机器人的key
+   dingtalk_token: "xxx"    # 钉钉群机器人token
 
 filePath:
    watch_path: "xxx"

@@ -1,17 +1,20 @@
 package sendAlert
 
-import "fmt"
+import (
+	"fmt"
+	"heapdump_watcher/setting"
+)
 
 // 根据类型选择告警媒介, 发oss url
-func SendAlertType(webhook_type, ossURL string) {
-	switch webhook_type {
-	case webhook_type:
-		fmt.Println(webhook_type)
-	case webhook_type:
-		fmt.Println(webhook_type)
-	case webhook_type:
-		fmt.Println(webhook_type)
+func SendAlertType(ossURL string) {
+	switch setting.Conf.AlarmMedium.WebhookType {
+	case "dingtalk":
+		fmt.Println("dingtalk", "OSS URL", ossURL)
+	case "email":
+		fmt.Println("email", "OSS URL", ossURL)
+	case "wechat":
+		fmt.Println("wechat", "OSS URL", ossURL)
 	default:
-		fmt.Println(webhook_type)
+		fmt.Errorf("不支持该告警类型")
 	}
 }

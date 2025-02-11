@@ -43,7 +43,7 @@ func watchFiles() {
 					} else {
 						log.Printf("File uploaded to OSS successfully: %s", event.Name)
 						// 发送告警通知
-						err = sendAlert.SendAlertType(setting.Conf.AlarmMedium.webhook_type, appName)
+						sendAlert.SendAlertType(appName)
 						if err != nil {
 							log.Printf("Failed to send WeChat alert: %v", err)
 						}
