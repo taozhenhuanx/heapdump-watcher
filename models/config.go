@@ -22,5 +22,6 @@ type Config struct {
 	// 匿名结构体---监听的文件路径
 	FilePath struct {
 		WatchPath string `mapstructure:"watch_path"`
+		KubeConf  string `mapstructure:"kube_conf"`
 	} `mapstructure:"filePath"`
 }
