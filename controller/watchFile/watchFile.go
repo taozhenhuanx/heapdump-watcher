@@ -4,8 +4,12 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
+
+	"heapdump_watcher/controller/sendAlert"
+	"heapdump_watcher/controller/store/cli"
 
 	"github.com/fsnotify/fsnotify"
 )
@@ -27,23 +31,23 @@ func watchFiles() {
 				if strings.HasSuffix(event.Name, "heapdump.prof") {
 					log.Printf("New heapdump file detected: %s", event.Name)
 					// 等待文件写入完成
-					if ok := isFileComplete(event.Name, 30.0, 2.0); !ok {
+					if ok := isFileComplete(event.Name, 30*time.Second, 2*time.Second); !ok {
 						log.Printf("Failed to wait for file completion: %v", err)
 						continue
 					}
 					// // 上传文件到OSS
-					// appName := filepath.Base(filepath.Dir(filepath.Dir(event.Name)))
-					// err := uploadFileToOSS(event.Name, appName)
-					// if err != nil {
-					// 	log.Printf("Failed to upload file to OSS: %v", err)
-					// } else {
-					// 	log.Printf("File uploaded to OSS successfully: %s", event.Name)
-					// 	// 发送企业微信告警通知
-					// 	err = sendWechatAlert(appName)
-					// 	if err != nil {
-					// 		log.Printf("Failed to send WeChat alert: %v", err)
-					// 	}
-					// }
+					appName := filepath.Base(filepath.Dir(filepath.Dir(event.Name)))
+					err := cli.UPload(event.Name, appName)
+					if err != nil {
+						log.Printf("Failed to upload file to OSS: %v", err)
+					} else {
+						log.Printf("File uploaded to OSS successfully: %s", event.Name)
+						// 发送告警通知
+						err = sendAlert.SendAlertType(setting.Conf.AlarmMedium.webhook_type, appName)
+						if err != nil {
+							log.Printf("Failed to send WeChat alert: %v", err)
+						}
+					}
 				}
 			}
 		case err, ok := <-watcher.Errors:
@@ -69,6 +73,7 @@ func isFileComplete(filePath string, maxDuration, checkInterval time.Duration) b
 
 	// 开始检查文件大小
 	startTime := time.Now()
+	// time.Since(startTime)  计算startTime 到现在的时间，然后判断是不是超过了我们要比较的时间maxDuration
 	for time.Since(startTime) < maxDuration {
 		time.Sleep(checkInterval) // 等待检查间隔
 
