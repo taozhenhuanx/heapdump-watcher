@@ -1,51 +1,57 @@
 package email
 
 import (
-	"crypto/tls"
-	"fmt"
-	"log"
-	"strconv"
-
 	"gopkg.in/gomail.v2"
 )
 
-func SendMail(mailTo []string, subject string, body string) error {
-	// 设置邮箱主体
-	mailConn := map[string]string{
-		"user": "x",         // 发件人
-		"pass": "x",         // 发件人密码或者授权码
-		"host": "smtp.x.cn", // 邮箱地址
-		"port": "465",       // 邮箱端口
-	}
-
-	port, _ := strconv.Atoi(mailConn["port"])
-	m := gomail.NewMessage()
-	m.SetHeader("From", m.FormatAddress(mailConn["user"], "xx官方")) // 添加别名
-	m.SetHeader("To", mailTo...)                                   // 发送给用户(可以多个)
-	m.SetHeader("Cc", "******@qq.com")                             // 抄送，可以多个
-	m.SetHeader("Bcc", "******@qq.com")                            // 暗送，可以多个
-	m.SetHeader("Subject", subject)                                // 设置邮件主题
-	m.SetBody("text/html", body)                                   // 设置邮件正文
-	// m.Attach("./myIpPic.png")                                                         //附件
-	d := gomail.NewDialer(mailConn["host"], port, mailConn["user"], mailConn["pass"]) // 设置邮件正文
-	d.TLSConfig = &tls.Config{InsecureSkipVerify: true}                               // 解决证书x509报错
-	err := d.DialAndSend(m)
-	return err
+// MailConn 代表邮件连接配置信息
+type MailConn struct {
+	User string // 发件人
+	Pass string // 发件人密码或者授权码
+	Host string // 邮箱地址
+	Port int    // 邮箱端口 (通常是 int)
 }
-func x() {
-	// 发送方
-	mailTo := []string{
-		"x<x@x.cn>", // 这里最好写成邮箱收发件时的这种标记格式
-	}
-	// 邮件主题
-	subject := "Hello"
+
+// Mail 代表邮件内容和收件人信息
+type Mail struct {
+	Conn        MailConn // 邮件连接信息
+	From        string   // 发件人地址
+	Subject     string   // 邮件主题
+	Body        string   // 邮件内容
+	To          []string // 收件人
+	Cc          []string // 抄送人
+	Bcc         []string // 暗送人
+	Attachments []string // 附件列表
+}
+
+// Send 方法用于发送邮件
+func (m *Mail) Send() error {
+	// 创建 gomail 邮件消息
+	message := gomail.NewMessage()
+	// 发送者
+	message.SetHeader("From", m.Conn.User)
+	// 接收者
+	message.SetHeader("To", m.To...)
+	// 抄送者
+	message.SetHeader("Cc", m.Cc...)
+	// 暗送人
+	message.SetHeader("Bcc", m.Bcc...)
+	// 邮件标题
+	message.SetHeader("Subject", m.Subject)
 	// 邮件正文
-	body := "Automatic send by Go gomail from xxx官方."
-	err := SendMail(mailTo, subject, body)
-	if err != nil {
-		log.Print(err)
-		fmt.Printf("Send fail!")
-		return
-	}
-	fmt.Printf("send successfully!")
+	message.SetBody("text/html", m.Body)
+
+	// 创建一个新的发件人
+	d := gomail.NewDialer(m.Conn.Host, m.Conn.Port, m.Conn.User, m.Conn.Pass)
+
+	// 邮件附件
+	// if len(m.Attachments) > 0 {
+	// 	// 添加附件
+	// 	for _, attachment := range m.Attachments {
+	// 		message.Attach(attachment)
+	// 	}
+	// }
+
+	// 发送邮件
+	return d.DialAndSend(message)
 }

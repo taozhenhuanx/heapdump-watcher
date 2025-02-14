@@ -9,6 +9,7 @@ storageInfo:
 
 alarmMedium:
    webhook_type: "email"    # 告警媒介类型   (wechat、email、dingtalk)
+   email_ : ""
    wechat_key: "xx"         # 企业微信群机器人的key
    dingtalk_token: "xxx"    # 钉钉群机器人token
 

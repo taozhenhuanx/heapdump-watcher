@@ -11,3 +11,6 @@
 
 ### 企业微信应用：
 - https://www.nowcoder.com/discuss/534745989103575040
+
+### 邮件发送参考：
+- https://learnku.com/go/t/70932

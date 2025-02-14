@@ -35,7 +35,7 @@ func watchFiles() {
 						log.Printf("Failed to wait for file completion: %v", err)
 						continue
 					}
-					// // 上传文件到OSS
+					// // 上传文件到OSS,  appName OSS的URL
 					appName := filepath.Base(filepath.Dir(filepath.Dir(event.Name)))
 					err := cli.UPload(event.Name, appName)
 					if err != nil {
