@@ -1,7 +1,7 @@
 package setting
 
 import (
-	"flag"
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -26,30 +26,34 @@ func ReadKubeConf() (clientset *kubernetes.Clientset, err error) {
 		config     *rest.Config // 可以在集群内部访问,也可以在集群外部访问。集群内部是在Pod中访问
 		kubeconfig *string      // 集群外部是通过KubeConfig访问(Kubelet)
 	)
-
+	fmt.Println(Conf.FilePath.KubeConf)
 	// 获取kubeconfig配置文件------这种方式是通过kubelet类型形式获取clientset
 	if home := homeDir(); home != "" {
 		// 如果home不等于空,在Linux上应该是等于/root,那么就拼接一个全路径 /root/.kube/config
-		kubeconfig = flag.String("kubeconfig", filepath.Join(home, ".kube", "config"), "(可选)kubeconfig文件的绝对路径")
-	} else {
-		// 如果config不在默认的路径,那么手动给一个, 配置在配置文件里面呗
-		kubeconfig = flag.String("kubeconfig", "", Conf.FilePath.KubeConf)
+		defaultKubeconfig := filepath.Join(home, ".kube", "config")
+		if _, err := os.Stat(defaultKubeconfig); err == nil {
+			// 如果默认路径的kubeconfig文件存在，则使用默认路径
+			kubeconfig = &defaultKubeconfig
+		} else if Conf.FilePath.KubeConf != "" {
+			// 如果默认路径不存在，则使用从Conf.FilePath.KubeConf传入的路径
+			kubeconfig = &Conf.FilePath.KubeConf
+		} else {
+			// 如果两者都不存在，则返回错误
+			return nil, fmt.Errorf("默认路径的kubeconfig文件未找到")
+		}
 	}
-
-	// 解析文件
-	flag.Parse()
 
 	// 使用集群内部模式(ServiceAccount)获取clientset
 	if config, err = rest.InClusterConfig(); err != nil {
 		// 如果使用内部模式出错则使用外部模式 kubeconfig文件来创建集群配置
 		if config, err = clientcmd.BuildConfigFromFlags("", *kubeconfig); err != nil {
-			panic(err.Error())
+			return nil, fmt.Errorf("无法创建集群配置: %v", err)
 		}
 	}
 
 	// 创建 Clientset 对象
 	if clientset, err = kubernetes.NewForConfig(config); err != nil {
-		panic(err.Error())
+		return nil, fmt.Errorf("无法创建Clientset: %v", err)
 	}
 
 	return clientset, nil

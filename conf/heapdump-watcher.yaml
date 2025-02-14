@@ -14,4 +14,4 @@ alarmMedium:
 
 filePath:
    watch_path: "xxx"
-   kube_conf: "./conf/k8s-config"
+   kube_conf: "conf/k8s-config"

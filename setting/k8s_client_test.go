@@ -2,6 +2,7 @@ package setting
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"testing"
 
@@ -13,6 +14,7 @@ func TestReadKubeConf(t *testing.T) {
 	if err != nil {
 		log.Printf("ReadKubeConf Error: %s", err)
 	}
+	fmt.Println("ReadKubeConf OK")
 	// 使用 clientsent 获取 Deployments
 	deployments, err := clientset.AppsV1().Deployments("kube-system").List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
