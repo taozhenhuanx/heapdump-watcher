@@ -15,7 +15,7 @@ import (
 )
 
 // event.Name 是当前正在被监听的文件路径+文件名
-func watchFiles() {
+func WatchFiles() {
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
 		log.Fatalf("Failed to create fsnotify watcher: %v", err)
@@ -27,8 +27,8 @@ func watchFiles() {
 				return
 			}
 			if event.Op&fsnotify.Create == fsnotify.Create {
-				// 检测到新文件创建
-				if strings.HasSuffix(event.Name, "heapdump.prof") {
+				// 检测到新文件创建 (strings.HasSuffix函数检查prof后缀)
+				if strings.HasSuffix(event.Name, "prof") {
 					log.Printf("New heapdump file detected: %s", event.Name)
 					// 等待文件写入完成
 					if ok := isFileComplete(event.Name, 30*time.Second, 2*time.Second); !ok {

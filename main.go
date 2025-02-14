@@ -1,6 +1,7 @@
 package main
 
 import (
+	"heapdump_watcher/controller/watchfile"
 	"heapdump_watcher/setting"
 )
 
@@ -23,4 +24,5 @@ func main() {
 	// for idx, deploy := range deployments.Items {
 	// 	log.Printf("%d -> %s\n", idx+1, deploy.Name)
 	// }
+	watchfile.WatchFiles()
 }
