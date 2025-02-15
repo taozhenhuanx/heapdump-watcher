@@ -9,22 +9,22 @@ import (
 )
 
 // 根据类型选择告警媒介, 发oss url
-func SendAlertType(ossURL string) {
+func SendAlertType(ossURL string) error {
 	switch setting.Conf.AlarmMedium.WebhookType {
 	case "dingtalk":
 		logrus.Println("dingtalk", "OSS URL", ossURL)
 	case "email":
-		logrus.Println("email", "OSS URL", ossURL)
-		SenAlertEmail(ossURL)
+		return SenAlertEmail(ossURL)
 	case "wechat":
 		logrus.Println("wechat", "OSS URL", ossURL)
 	default:
 		logrus.Errorf("不支持该告警类型")
 	}
+	return nil
 }
 
 // 先写死, 后面通过配置文件传递参数
-func SenAlertEmail(ossURL string) {
+func SenAlertEmail(ossURL string) error {
 	Body := fmt.Sprintf("<h3>JAVA 业务服务 OOM文件了, 请下载链接查看%s: </h3>", ossURL)
 	// 创建邮件连接配置的实例
 	mailConn := email.MailConn{
@@ -38,18 +38,20 @@ func SenAlertEmail(ossURL string) {
 	mail := email.Mail{
 		Conn:        mailConn,
 		From:        "tzh971204@163.com",
-		To:          []string{"tzh971204@163.com"}, // 发送给用户
-		Cc:          []string{"tzh971204@163.com"}, // 抄送
-		Bcc:         []string{"tzh971204@163.com"}, // 暗送
-		Subject:     "JAVA 业务服务 OOM文件",             // 主题
-		Body:        Body,                          // 邮件正文
-		Attachments: []string{""},                  // 附件
+		To:          []string{"619231775@qq.com"}, // 发送给用户
+		Cc:          []string{"619231775@qq.com"}, // 抄送
+		Bcc:         []string{"619231775@qq.com"}, // 暗送
+		Subject:     "JAVA 业务服务 OOM文件",            // 主题
+		Body:        Body,                         // 邮件正文
+		Attachments: []string{""},                 // 附件
 	}
 
 	// 发送邮件
 	if err := mail.Send(); err != nil {
 		logrus.Error("发送邮件出错:", err)
+		return err
 	} else {
 		logrus.Println("邮件发送成功!")
 	}
+	return nil
 }

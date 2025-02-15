@@ -79,29 +79,29 @@ type AliOssStore struct {
 }
 
 // 然后实现我们抽象的接口
-func (s *AliOssStore) Upload(bucketName string, objectKey string, fileName string) error {
+func (s *AliOssStore) Upload(bucketName string, objectKey string, fileName string) (error, string) {
 
 	// 1、获取client, 构造函数中已经实现
 
 	// 2、获取bucket对象
 	bucket, err := s.client.Bucket(bucketName)
 	if err != nil {
-		return err
+		return err, ""
 	}
 
 	// 3、上传文件到bucket
 	// objectKey, fileName -----> oss上的文件名, 要上传的文件名
 	if err := bucket.PutObjectFromFile(objectKey, fileName, oss.Progress(s.listener)); err != nil {
-		return err
+		return err, ""
 	}
 
 	// 4、打印下载链接
 	download, err := bucket.SignURL(objectKey, oss.HTTPGet, 60*60*24)
 	if err != nil {
-		return err
+		return err, ""
 	}
 
 	fmt.Printf("文件下载URL: %s\n", download)
 	// fmt.Println("请在一天内下载文件")
-	return nil
+	return nil, download
 }

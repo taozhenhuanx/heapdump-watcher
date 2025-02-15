@@ -1,4 +1,4 @@
-package watchfile
+package watchFile
 
 import (
 	"fmt"

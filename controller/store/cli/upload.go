@@ -8,7 +8,7 @@ import (
 )
 
 // 文件上传
-func UPload(uploadFile, filePath string) error {
+func UPload(uploadFile, filePath string) (error, string) {
 	var (
 		uploader store.Uploader
 		err      error
@@ -25,10 +25,10 @@ func UPload(uploadFile, filePath string) error {
 	case "tx":
 	case "aws":
 	default:
-		return fmt.Errorf("不支持该厂商类型")
+		return fmt.Errorf("不支持该厂商类型"), ""
 	}
 	if err != nil {
-		return err
+		return err, ""
 	}
 
 	// 如果上面校验密码正确,那么就使用upload来上传文件

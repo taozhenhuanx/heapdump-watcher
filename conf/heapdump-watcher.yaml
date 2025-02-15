@@ -14,5 +14,5 @@ alarmMedium:
    dingtalk_token: "xxx"    # 钉钉群机器人token
 
 filePath:
-   watch_path: "xxx"
+   watch_path: "test-file/"
    kube_conf: "conf/k8s-config"
