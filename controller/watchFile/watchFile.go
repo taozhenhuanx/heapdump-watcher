@@ -47,9 +47,12 @@ func WatchFiles() {
 							logrus.Printf("等待文件完成失败: %v", err)
 							continue
 						}
-
-						// 上传文件到OSS,  appName OSS的URL
+						// if zipFilePath, err := utils.ZipFile(event.Name); err != nil {
+						// 	fmt.Println(zipFilePath)
+						// }
+						// 上传文件到OSS,  appName OSS的URL  [filepath.Dir 获取目录、]
 						appName := filepath.Base(filepath.Dir(filepath.Dir(event.Name)))
+						logrus.Println("appName 是", appName)
 						err, OssURL := cli.UPload(appName, event.Name)
 						if err != nil {
 							logrus.Printf("Failed to upload file to OSS: %v", err)
