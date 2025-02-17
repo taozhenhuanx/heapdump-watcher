@@ -24,4 +24,15 @@ type Config struct {
 		WatchPath string `mapstructure:"watch_path"`
 		KubeConf  string `mapstructure:"kube_conf"`
 	} `mapstructure:"filePath"`
+
+	// 邮件信息
+	AlarmEmail struct {
+		User string   `mapstructure:"user"`
+		Pass string   `mapstructure:"pass"`
+		Host string   `mapstructure:"host"`
+		Port int      `mapstructure:"port"`
+		To   []string `mapstructure:"to"`
+		Cc   []string `mapstructure:"cc"`
+		Bcc  []string `mapstructure:"bcc"`
+	} `mapstructure:"alarmEmail"`
 }

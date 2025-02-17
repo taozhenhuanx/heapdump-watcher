@@ -1,7 +1,6 @@
 package watchFile
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -88,7 +87,7 @@ func isFileComplete(filePath string, maxDuration, checkInterval time.Duration) b
 
 	// 获取初始文件大小
 	if initialSize, err = getFileSize(filePath); err != nil {
-		logrus.Println("Error getting file size:", err)
+		logrus.Error("Error getting file size:", err)
 		return false
 	}
 
@@ -100,7 +99,7 @@ func isFileComplete(filePath string, maxDuration, checkInterval time.Duration) b
 
 		finalSize, err := getFileSize(filePath)
 		if err != nil {
-			logrus.Println("Error getting file size:", err)
+			logrus.Error("Error getting file size:", err)
 			return false
 		}
 
@@ -118,12 +117,12 @@ func isFileComplete(filePath string, maxDuration, checkInterval time.Duration) b
 func getFileSize(filePath string) (int64, error) {
 	fileInfo, err := os.Stat(filePath)
 	if os.IsNotExist(err) {
-		logrus.Println("文件不存在:", err)
+		logrus.Error("文件不存在:", err)
 		return 0, nil // 文件不存在
 	}
 	if err != nil {
 		return 0, err
 	}
-	fmt.Println("文件大小", fileInfo.Size())
+	logrus.Info("文件大小", fileInfo.Size())
 	return fileInfo.Size(), nil
 }
