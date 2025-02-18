@@ -3,6 +3,8 @@ package main
 import (
 	"heapdump_watcher/controller/watchFile"
 	"heapdump_watcher/setting"
+
+	"github.com/sirupsen/logrus"
 )
 
 func main() {
@@ -25,4 +27,5 @@ func main() {
 	// 	log.Printf("%d -> %s\n", idx+1, deploy.Name)
 	// }
 	watchFile.WatchFiles()
+	logrus.Println("heapdump-watcher 程序已经启动")
 }

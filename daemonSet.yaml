@@ -20,19 +20,38 @@ metadata:
   name: heapdump-config  
   namespace: default  
 data:  
-  config.yaml: |  
-    oss:  
-      endpoint: your-oss-endpoint  
-      bucket: your-oss-bucket  
-      accessID: your-oss-access-id  
-      accessKey: your-oss-access-key  
-    wechat:  
-      webhookURL: your-wechat-webhook-url  
-    whitelist:  
-      - app1  
-      - app2  
-      - app3  
-    watchPods: false  # 控制是否监听 Pod 变化
+  heapdump-watcher.yaml: |  
+    storageInfo:
+      access_key: "LTAI5t75aC3EqxNYCMyBmbE8"
+      access_secret: "NYLIFCiNbixuDf7nNaFHEHeMzCF91L"
+      oss_endpoint: "oss-cn-guangzhou.aliyuncs.com"
+      bucket_name: "heapdump-watcher"
+      storage_type: "aliyun"   # oss类型, aliyun aws tx minio
+
+    alarmMedium:
+      webhook_type: "email"    # 告警媒介类型   (wechat、email、dingtalk)
+      wechat_key: "xx"         # 企业微信群机器人的key
+      dingtalk_token: "xxx"    # 钉钉群机器人token
+
+    alarmEmail:
+      # 这几些是发件人信息 
+      user : "tzh971204@163.com"
+      pass: "DJg7UxPn8FjasT3W"
+      host: "smtp.163.com"
+      port: 465
+      # 收件人信息
+      to: 
+        - "619231775@qq.com"
+        - "362777279@qq.com"
+      cc: 
+        - "619231775@qq.com"
+      bcc: 
+        - "619231775@qq.com"
+
+    filePath:
+      watch_path: "/data/logs/"
+      kube_conf: "conf/k8s-config"
+
 ---  
 apiVersion: apps/v1  
 kind: DaemonSet  
@@ -51,14 +70,14 @@ spec:
       serviceAccountName: heapdump-watcher  
       containers:  
         - name: heapdump-watcher  
-          image: your-docker-image:latest  
+          image: registry.cn-hangzhou.aliyuncs.com/zhenhuan/heapdump-watcher:v1
           volumeMounts:  
             - name: logs  
-              mountPath: /mnt/logs  
+              mountPath: /data/logs  
               readOnly: false  
             - name: config  
-              mountPath: /app/config.yaml  
-              subPath: config.yaml  
+              mountPath: /app/conf/heapdump-watcher.yaml  
+              subPath: heapdump-watcher.yaml  
               readOnly: true  
           env:  
             - name: NODE_NAME  
@@ -70,11 +89,11 @@ spec:
       volumes:  
         - name: logs  
           hostPath:  
-            path: /mnt/logs  
+            path: /data/logs  
             type: Directory  
         - name: config  
           configMap:  
             name: heapdump-config  
             items:  
-              - key: config.yaml  
-                path: config.yaml
+              - key: heapdump-watcher.yaml  
+                path: heapdump-watcher.yaml

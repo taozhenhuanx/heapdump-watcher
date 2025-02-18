@@ -90,6 +90,7 @@ func WatchFiles() {
 	if err := watcher.Add(setting.Conf.FilePath.WatchPath); err != nil {
 		logrus.Fatal("Add failed:", err)
 	}
+
 	// 永久阻塞 main goroutine
 	<-done
 }
