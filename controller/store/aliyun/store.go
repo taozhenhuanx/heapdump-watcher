@@ -6,6 +6,7 @@ import (
 	"heapdump_watcher/setting"
 
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
+	"github.com/sirupsen/logrus"
 )
 
 /*
@@ -75,11 +76,12 @@ type AliOssStore struct {
 	// 阿里云 OSS client, 私有变量, 不运行外部
 	client *oss.Client
 	// 依赖listener的实现
+	// 进度监听器
 	listener oss.ProgressListener
 }
 
 // 然后实现我们抽象的接口
-func (s *AliOssStore) Upload(bucketName string, objectKey string, fileName string) (error, string) {
+func (s *AliOssStore) Upload(bucketName string, objectKey string, fileName string) (err error, download string) {
 
 	// 1、获取client, 构造函数中已经实现
 
@@ -96,12 +98,11 @@ func (s *AliOssStore) Upload(bucketName string, objectKey string, fileName strin
 	}
 
 	// 4、打印下载链接
-	download, err := bucket.SignURL(objectKey, oss.HTTPGet, 60*60*24)
+	download, err = bucket.SignURL(objectKey, oss.HTTPGet, 60*60*24)
 	if err != nil {
 		return err, ""
 	}
 
-	fmt.Printf("文件下载URL: %s\n", download)
-	// fmt.Println("请在一天内下载文件")
+	logrus.Printf("文件下载URL: %s\n", download)
 	return nil, download
 }

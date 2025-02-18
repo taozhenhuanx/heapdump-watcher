@@ -11,6 +11,7 @@ import (
 	"heapdump_watcher/controller/sendAlert"
 	"heapdump_watcher/controller/store/cli"
 	"heapdump_watcher/setting"
+	"heapdump_watcher/utils"
 
 	"github.com/fsnotify/fsnotify"
 )
@@ -47,13 +48,18 @@ func WatchFiles() {
 							logrus.Printf("等待文件完成失败: %v", err)
 							continue
 						}
-						// if zipFilePath, err := utils.ZipFile(event.Name); err != nil {
-						// 	fmt.Println(zipFilePath)
-						// }
+
+						// 压缩文件
+						zipFilePath, err := utils.ZipFile(event.Name)
+						if err != nil {
+							logrus.Printf("压缩文件失败: %v", err)
+							continue
+						}
+
 						// 上传文件到OSS,  appName OSS的URL  [filepath.Dir 获取目录、]
-						appName := filepath.Base(filepath.Dir(filepath.Dir(event.Name)))
-						logrus.Println("appName 是", appName)
-						err, OssURL := cli.UPload(appName, event.Name)
+						appName := filepath.Base(zipFilePath)
+						// event.Name 监听的文件绝对路径
+						err, OssURL := cli.UPload(appName, zipFilePath)
 						if err != nil {
 							logrus.Printf("Failed to upload file to OSS: %v", err)
 							continue
@@ -62,6 +68,12 @@ func WatchFiles() {
 						// 发送告警通知
 						if err := sendAlert.SendAlertType(OssURL); err != nil {
 							logrus.Printf("发送告警失败: %s", err)
+							continue
+						}
+
+						// 清理生成的 ZIP 文件
+						if err := os.Remove(zipFilePath); err != nil {
+							logrus.Printf("清理生成的 ZIP 文件: %s", err)
 						}
 					}
 				}

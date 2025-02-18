@@ -8,7 +8,7 @@ import (
 )
 
 // 文件上传
-func UPload(uploadFile, filePath string) (error, string) {
+func UPload(objectKey, filePath string) (error, string) {
 	var (
 		uploader store.Uploader
 		err      error
@@ -32,5 +32,6 @@ func UPload(uploadFile, filePath string) (error, string) {
 	}
 
 	// 如果上面校验密码正确,那么就使用upload来上传文件
-	return uploader.Upload(setting.Conf.StorageInfo.BucketName, uploadFile, filePath)
+	//  filePath    the local file path to upload.
+	return uploader.Upload(setting.Conf.StorageInfo.BucketName, objectKey, filePath)
 }

@@ -25,7 +25,7 @@ func SendAlertType(ossURL string) error {
 
 // 邮件发送
 func SenAlertEmail(ossURL string) error {
-	Body := fmt.Sprintf("<h3>JAVA 业务服务 OOM文件了, 请下载链接查看%s: </h3>", ossURL)
+	Body := fmt.Sprintf("<h3>JAVA 业务服务 OOM文件了, 请在一天内下载文件, 请下载链接查看%s: </h3>", ossURL)
 	// 创建邮件连接配置的实例
 	mailConn := email.MailConn{
 		User: setting.Conf.AlarmEmail.User, // 发件人
