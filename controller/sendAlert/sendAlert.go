@@ -2,17 +2,18 @@ package sendAlert
 
 import (
 	"fmt"
+	"heapdump_watcher/controller/sendAlert/dingtalk"
 	"heapdump_watcher/controller/sendAlert/email"
 	"heapdump_watcher/setting"
 
 	"github.com/sirupsen/logrus"
 )
 
-// 根据类型选择告警媒介, 发oss url
+// SendAlertType 根据类型选择告警媒介, 发oss url
 func SendAlertType(ossURL string) error {
 	switch setting.Conf.AlarmMedium.WebhookType {
 	case "dingtalk":
-		logrus.Println("dingtalk", "OSS URL", ossURL)
+		return dingtalk.SendDingTalk("heapdump 告警信息,文件已经转存，请及时下载", "生产环境", "APP应用", ossURL)
 	case "email":
 		return SenAlertEmail(ossURL)
 	case "wechat":
@@ -23,7 +24,7 @@ func SendAlertType(ossURL string) error {
 	return nil
 }
 
-// 邮件发送
+// SenAlertEmail 邮件发送
 func SenAlertEmail(ossURL string) error {
 	Body := fmt.Sprintf("<h3>JAVA 业务服务 OOM文件了, 请在一天内下载文件, 请下载链接查看%s: </h3>", ossURL)
 	// 创建邮件连接配置的实例
