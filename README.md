@@ -38,22 +38,6 @@ Go 语言开发的堆转储文件自动化监控管理工具
 - OSS 服务访问权限
 - 至少配置一个通知渠道（钉钉、企业微信或邮件）
 
-## 安装部署
-
-```bash
-git clone https://github.com/yourusername/heapdump-watcher
-cd heapdump-watcher
-go mod download
-```
-
-## 使用方法
-
-1. 配置相关设置
-2. 运行应用：
-```bash
-go run main.go
-```
-
 ## 参考文档
 
 ### 钉钉机器人
