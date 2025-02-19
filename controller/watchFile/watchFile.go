@@ -90,7 +90,7 @@ func WatchFiles() {
 	if err := watcher.Add(setting.Conf.FilePath.WatchPath); err != nil {
 		logrus.Fatal("Add failed:", err)
 	}
-
+	logrus.Println("heapdump-watcher 程序已经启动")
 	// 永久阻塞 main goroutine
 	<-done
 }

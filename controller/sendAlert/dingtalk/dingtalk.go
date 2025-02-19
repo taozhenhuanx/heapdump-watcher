@@ -6,6 +6,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
+
+	"github.com/sirupsen/logrus"
 )
 
 func SendDingTalk(msg, env, appName, ossURL string) error {
@@ -15,10 +17,10 @@ func SendDingTalk(msg, env, appName, ossURL string) error {
 	title := fmt.Sprintf("【告警】%s", appName)
 	markdownText := fmt.Sprintf(
 		"### 告警通知\n\n"+
-			"> **环境**：%s\n\n"+
-			"> **应用**：%s\n\n"+
-			"> **OSS地址**：[点击查看](%s)\n\n"+
-			"> **告警信息**：%s\n",
+			"> **环境**: %s\n\n"+
+			"> **应用**: %s\n\n"+
+			"> **OSS地址**: [点击查看](%s)\n\n"+
+			"> **告警信息**: %s\n",
 		env, appName, ossURL, msg)
 
 	// 构造 JSON 格式的消息体（使用 Markdown 格式）
@@ -39,7 +41,7 @@ func SendDingTalk(msg, env, appName, ossURL string) error {
 	// 创建 POST 请求
 	req, err := http.NewRequest("POST", webHook, strings.NewReader(content))
 	if err != nil {
-		fmt.Println("创建请求错误：", err)
+		logrus.Println("创建请求错误: ", err)
 		return err
 	}
 
@@ -48,7 +50,7 @@ func SendDingTalk(msg, env, appName, ossURL string) error {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		fmt.Println("发送请求错误：", err)
+		logrus.Println("发送请求错误: ", err)
 		return err
 	}
 	defer resp.Body.Close()
@@ -56,9 +58,9 @@ func SendDingTalk(msg, env, appName, ossURL string) error {
 	// 读取响应
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		fmt.Println("读取响应错误：", err)
+		logrus.Println("读取响应错误: ", err)
 		return err
 	}
-	fmt.Println("响应内容：", string(body))
+	logrus.Println("响应内容: ", string(body))
 	return nil
 }

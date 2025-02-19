@@ -7,9 +7,9 @@ storageInfo:
    storage_type: "aliyun"   # oss类型, aliyun aws tx minio
 
 alarmMedium:
-   webhook_type: "email"    # 告警媒介类型   (wechat、email、dingtalk)
-   wechat_key: "xx"         # 企业微信群机器人的key
-   dingtalk_token: "xxx"    # 钉钉群机器人token
+   webhook_type: "wechat"    # 告警媒介类型   (wechat、email、dingtalk)
+   wechat_key: "xx-e579-xx-xx-xxx"  # 企业微信群机器人的key
+   dingtalk_token: "x-e579-xx-883c-xx"  # 钉钉群机器人token
 
 alarmEmail:
    # 这几些是发件人信息 

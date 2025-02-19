@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"heapdump_watcher/controller/sendAlert/dingtalk"
 	"heapdump_watcher/controller/sendAlert/email"
+	"heapdump_watcher/controller/sendAlert/wechat"
 	"heapdump_watcher/setting"
 
 	"github.com/sirupsen/logrus"
@@ -17,7 +18,7 @@ func SendAlertType(ossURL string) error {
 	case "email":
 		return SenAlertEmail(ossURL)
 	case "wechat":
-		logrus.Println("wechat", "OSS URL", ossURL)
+		return wechat.SendWeChat("heapdump 告警信息,文件已经转存，请及时下载", "生产环境", "APP应用", ossURL)
 	default:
 		logrus.Errorf("不支持该告警类型")
 	}
