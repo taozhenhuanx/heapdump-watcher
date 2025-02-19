@@ -44,7 +44,7 @@ func WatchFiles() {
 						logrus.Printf("检测到新的heap dump文件: %s", event.Name)
 
 						// 等待文件写入完成
-						if ok := isFileComplete(event.Name, 60*time.Second, 2*time.Second); !ok {
+						if ok := isFileComplete(event.Name, 30*time.Second, 2*time.Second); !ok {
 							logrus.Printf("等待文件完成失败: %v", err)
 							continue
 						}
@@ -139,6 +139,6 @@ func getFileSize(filePath string) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	logrus.Info("文件大小", fileInfo.Size())
+	logrus.Printf("等待文件生成完成，当前文件大小是: %dM", fileInfo.Size()/1048576)
 	return fileInfo.Size(), nil
 }

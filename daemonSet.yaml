@@ -90,7 +90,7 @@ spec:
         - name: logs  
           hostPath:  
             path: /data/logs  
-            type: Directory  
+            type: DirectoryOrCreate  
         - name: config  
           configMap:  
             name: heapdump-config  

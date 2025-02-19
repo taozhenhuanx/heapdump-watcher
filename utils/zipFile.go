@@ -54,7 +54,7 @@ func ZipFile(filePath string) (string, error) {
 		logrus.Errorf("无法写入 ZIP 文件: %s", err)
 		return "", err
 	}
-
+	logrus.Info("写入 ZIP 文件完成")
 	// 返回压缩后的文件路径
 	return zipFilePath, nil
 }
