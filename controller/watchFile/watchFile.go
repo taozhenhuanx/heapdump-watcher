@@ -22,7 +22,7 @@ func WatchFiles() {
 	// 创建一个监听器
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
-		logrus.Fatalf("Failed to create fsnotify watcher: %v", err)
+		logrus.Errorf("Failed to create fsnotify watcher: %v", err)
 	}
 	defer watcher.Close()
 
@@ -35,7 +35,7 @@ func WatchFiles() {
 			// watcher.Events 事件
 			case event, ok := <-watcher.Events:
 				if !ok {
-					logrus.Fatalf("watcher Events Error")
+					logrus.Errorf("watcher Events Error")
 					return
 				}
 				// 判断监听事件是Create
@@ -46,14 +46,14 @@ func WatchFiles() {
 
 						// 等待文件写入完成
 						if ok := isFileComplete(event.Name, 30*time.Second, 2*time.Second); !ok {
-							logrus.Printf("等待文件完成失败: %v", err)
+							logrus.Errorf("等待文件完成失败: %v", err)
 							continue
 						}
 
 						// 压缩文件
 						zipFilePath, err := utils.ZipFile(event.Name)
 						if err != nil {
-							logrus.Printf("压缩文件失败: %v", err)
+							logrus.Errorf("压缩文件失败: %v", err)
 							continue
 						}
 
@@ -61,38 +61,38 @@ func WatchFiles() {
 						appName := filepath.Base(zipFilePath)
 						podName, err := utils.GetFileNameWithoutExt(event.Name)
 						if err != nil {
-							logrus.Printf("GetFileNameWithoutExt: %v", err)
+							logrus.Errorf("GetFileNameWithoutExt: %v", err)
 							continue
 						}
 						// k8s cient-go
 						clientset, err := setting.ReadKubeConf()
 						if err != nil {
-							logrus.Printf("ReadKubeConf Error: %s", err)
+							logrus.Errorf("ReadKubeConf Error: %s", err)
 						}
 
 						// 获取名称空间名字
 						nsName, err := k8sUtils.GetPodNamespace(clientset, podName)
 						if err != nil {
-							logrus.Printf("获取名称空间名字 Error: %s", err)
+							logrus.Errorf("获取名称空间名字 Error: %s", err)
 						}
 
 						// 上传文件到OSS
 						// event.Name 监听的文件绝对路径
 						err, ossURL := cli.UPload(appName, zipFilePath)
 						if err != nil {
-							logrus.Printf("Failed to upload file to OSS: %v", err)
+							logrus.Errorf("Failed to upload file to OSS: %v", err)
 							continue
 						}
 
 						// 发送告警通知 ossURL, podName, nsName
 						if err := sendAlert.SendAlertType(ossURL, podName, nsName); err != nil {
-							logrus.Printf("发送告警失败: %s", err)
+							logrus.Errorf("发送告警失败: %s", err)
 							continue
 						}
 
 						// 清理生成的 ZIP 文件
 						if err := os.Remove(zipFilePath); err != nil {
-							logrus.Printf("清理生成的 ZIP 文件: %s", err)
+							logrus.Errorf("清理生成的 ZIP 文件: %s", err)
 						}
 					}
 				}
