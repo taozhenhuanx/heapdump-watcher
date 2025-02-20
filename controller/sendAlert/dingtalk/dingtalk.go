@@ -10,18 +10,19 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func SendDingTalk(msg, env, appName, ossURL string) error {
+func SendDingTalk(msg, env, podName, ossURL, nsName string) error {
 	webHook := fmt.Sprintf("https://oapi.dingtalk.com/robot/send?access_token=%s", setting.Conf.AlarmMedium.DingTalkToken)
 
 	// 构造告警标题和 Markdown 内容
-	title := fmt.Sprintf("【告警】%s", appName)
+	title := fmt.Sprintf("【告警】%s", podName)
 	markdownText := fmt.Sprintf(
 		"### 告警通知\n\n"+
 			"> **环境**: %s\n\n"+
-			"> **应用**: %s\n\n"+
+			"> **Pod名称空间**: %s\n\n"+
+			"> **Pod名字**: %s\n\n"+
 			"> **OSS地址**: [点击查看](%s)\n\n"+
 			"> **告警信息**: %s\n",
-		env, appName, ossURL, msg)
+		env, nsName, podName, ossURL, msg)
 
 	// 构造 JSON 格式的消息体（使用 Markdown 格式）
 	content := fmt.Sprintf(`{

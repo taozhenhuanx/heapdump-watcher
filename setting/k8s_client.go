@@ -26,7 +26,6 @@ func ReadKubeConf() (clientset *kubernetes.Clientset, err error) {
 		config     *rest.Config // 可以在集群内部访问,也可以在集群外部访问。集群内部是在Pod中访问
 		kubeconfig *string      // 集群外部是通过KubeConfig访问(Kubelet)
 	)
-	fmt.Println(Conf.FilePath.KubeConf)
 	// 获取kubeconfig配置文件------这种方式是通过kubelet类型形式获取clientset
 	if home := homeDir(); home != "" {
 		// 如果home不等于空,在Linux上应该是等于/root,那么就拼接一个全路径 /root/.kube/config
@@ -39,7 +38,7 @@ func ReadKubeConf() (clientset *kubernetes.Clientset, err error) {
 			kubeconfig = &Conf.FilePath.KubeConf
 		} else {
 			// 如果两者都不存在，则返回错误
-			return nil, fmt.Errorf("默认路径的kubeconfig文件未找到")
+			return nil, fmt.Errorf("kubeconfig文件未找到")
 		}
 	}
 

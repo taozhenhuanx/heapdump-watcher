@@ -8,6 +8,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 
+	"heapdump_watcher/controller/k8sUtils"
 	"heapdump_watcher/controller/sendAlert"
 	"heapdump_watcher/controller/store/cli"
 	"heapdump_watcher/setting"
@@ -56,17 +57,31 @@ func WatchFiles() {
 							continue
 						}
 
-						// 上传文件到OSS,  appName OSS的URL  [filepath.Dir 获取目录、]
+						// 上传文件到OSS,  appName OSS的URL  [filepath.Dir 获取目录]
 						appName := filepath.Base(zipFilePath)
+						podName, err := utils.GetFileNameWithoutExt(event.Name)
+						if err != nil {
+							logrus.Printf("GetFileNameWithoutExt: %v", err)
+							continue
+						}
+						// k8s cient-go
+						clientset, err := setting.ReadKubeConf()
+						if err != nil {
+							logrus.Printf("ReadKubeConf Error: %s", err)
+						}
+
+						// 获取名称空间名字
+						nsName, _ := k8sUtils.GetPodNamespace(clientset, podName)
+
 						// event.Name 监听的文件绝对路径
-						err, OssURL := cli.UPload(appName, zipFilePath)
+						err, ossURL := cli.UPload(appName, zipFilePath)
 						if err != nil {
 							logrus.Printf("Failed to upload file to OSS: %v", err)
 							continue
 						}
 
-						// 发送告警通知
-						if err := sendAlert.SendAlertType(OssURL); err != nil {
+						// 发送告警通知 ossURL, podName, nsName
+						if err := sendAlert.SendAlertType(ossURL, podName, nsName); err != nil {
 							logrus.Printf("发送告警失败: %s", err)
 							continue
 						}

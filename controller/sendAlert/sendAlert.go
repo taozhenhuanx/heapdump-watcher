@@ -11,14 +11,15 @@ import (
 )
 
 // SendAlertType 根据类型选择告警媒介, 发oss url
-func SendAlertType(ossURL string) error {
+func SendAlertType(ossURL, podName, nsName string) error {
 	switch setting.Conf.AlarmMedium.WebhookType {
 	case "dingtalk":
-		return dingtalk.SendDingTalk("heapdump 告警信息,文件已经转存，请及时下载", "生产环境", "APP应用", ossURL)
+		return dingtalk.SendDingTalk("heapdump 告警信息,文件已经转存，请及时下载", "生产环境", ossURL, podName, nsName)
 	case "email":
 		return SenAlertEmail(ossURL)
 	case "wechat":
-		return wechat.SendWeChat("heapdump 告警信息,文件已经转存，请及时下载", "生产环境", "APP应用", ossURL)
+		// msg, env, podName, ossURL, nsName
+		return wechat.SendWeChat("heapdump 告警信息,文件已经转存，请及时下载", "生产环境", ossURL, podName, nsName)
 	default:
 		logrus.Errorf("不支持该告警类型")
 	}

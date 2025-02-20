@@ -4,6 +4,7 @@ import (
 	"archive/zip"
 	"io"
 	"os"
+	"path"
 	"path/filepath"
 	"time"
 
@@ -57,4 +58,17 @@ func ZipFile(filePath string) (string, error) {
 	logrus.Info("写入 ZIP 文件完成")
 	// 返回压缩后的文件路径
 	return zipFilePath, nil
+}
+
+// 传入文件全路径, 返回文件名字
+func GetFileNameWithoutExt(filePath string) (string, error) {
+	// 检查文件是否存在
+	_, err := os.Stat(filePath)
+	if err != nil {
+		return "", err // 文件不存在，返回空字符串
+	}
+	fileName := path.Base(filePath)
+	// 去除扩展名
+	fileNameWithoutExt := fileName[:len(fileName)-len(filepath.Ext(fileName))]
+	return fileNameWithoutExt, nil
 }

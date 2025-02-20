@@ -2,6 +2,7 @@ package utils
 
 import (
 	"archive/zip"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"testing"
@@ -65,4 +66,9 @@ func TestZipFile(t *testing.T) {
 	if string(unzippedContent) != "Hello, World!" {
 		t.Errorf("解压缩后的内容不正确: %s", string(unzippedContent))
 	}
+}
+
+func TestGetFileNameWithoutExt(t *testing.T) {
+	fileName, _ := GetFileNameWithoutExt("/app/xxx/qqq/qi-capability-68896b6858-zwmfb.hprof")
+	fmt.Println(fileName)
 }

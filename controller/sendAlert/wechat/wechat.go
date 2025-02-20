@@ -27,16 +27,17 @@ type Text struct {
 	MentionedMobileList []string `json:"mentioned_mobile_list"` // 手机号列表，提醒手机号对应的群成员(@某个成员)，@all表示提醒所有人
 }
 
-func SendWeChat(msg, env, appName, ossURL string) error {
+func SendWeChat(msg, env, ossURL, podName, nsName string) error {
 	url := fmt.Sprintf("https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=%s", setting.Conf.AlarmMedium.WeChatKey)
 
 	markdownText := fmt.Sprintf(
 		"### 告警通知\n\n"+
 			"> **环境**: %s\n\n"+
-			"> **应用**: %s\n\n"+
+			"> **Pod名称空间**: %s\n\n"+
+			"> **Pod名字**: %s\n\n"+
 			"> **OSS地址**: [点击查看](%s)\n\n"+
 			"> **告警信息**: %s\n",
-		env, appName, ossURL, msg)
+		env, nsName, podName, ossURL, msg)
 	/*
 		// 企业微信群机器人需要@的人
 		mentioned_list := []string{}
