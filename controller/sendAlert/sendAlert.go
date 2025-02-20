@@ -16,7 +16,7 @@ func SendAlertType(ossURL, podName, nsName string) error {
 	case "dingtalk":
 		return dingtalk.SendDingTalk("heapdump 告警信息,文件已经转存，请及时下载", "生产环境", ossURL, podName, nsName)
 	case "email":
-		return SenAlertEmail(ossURL)
+		return SenAlertEmail("heapdump 告警信息,文件已经转存，请及时下载", "生产环境", ossURL, podName, nsName)
 	case "wechat":
 		// msg, env, podName, ossURL, nsName
 		return wechat.SendWeChat("heapdump 告警信息,文件已经转存，请及时下载", "生产环境", ossURL, podName, nsName)
@@ -27,8 +27,20 @@ func SendAlertType(ossURL, podName, nsName string) error {
 }
 
 // SenAlertEmail 邮件发送
-func SenAlertEmail(ossURL string) error {
-	Body := fmt.Sprintf("<h3>JAVA 业务服务 OOM文件了, 请在一天内下载文件, 请下载链接查看%s: </h3>", ossURL)
+func SenAlertEmail(msg, env, ossURL, podName, nsName string) error {
+	body := fmt.Sprintf(
+		"<h3>出现 OOM 错误, JAVA 业务服务需要您的注意。</h3>"+
+			"<p>请在24小时内下载以下文件以进行分析: </p>"+
+			"<p><a href=\"%s\">下载 OOM 文件</a></p>"+
+			"<p>相关信息：</p>"+
+			"<ul>"+
+			"<li>环境: %s</li>"+
+			"<li>Pod 名称: %s</li>"+
+			"<li>命名空间: %s</li>"+
+			"</ul>",
+		ossURL, env, podName, nsName,
+	)
+
 	// 创建邮件连接配置的实例
 	mailConn := email.MailConn{
 		User: setting.Conf.AlarmEmail.User, // 发件人
@@ -45,7 +57,7 @@ func SenAlertEmail(ossURL string) error {
 		Cc:          setting.Conf.AlarmEmail.Cc,   // 抄送
 		Bcc:         setting.Conf.AlarmEmail.Bcc,  // 暗送
 		Subject:     "JAVA 业务服务 OOM文件",            // 主题
-		Body:        Body,                         // 邮件正文
+		Body:        body,                         // 邮件正文
 		Attachments: []string{""},                 // 附件
 	}
 

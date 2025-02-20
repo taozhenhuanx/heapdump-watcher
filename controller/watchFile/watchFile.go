@@ -57,7 +57,7 @@ func WatchFiles() {
 							continue
 						}
 
-						// 上传文件到OSS,  appName OSS的URL  [filepath.Dir 获取目录]
+						//  appName OSS的URL  [filepath.Dir 获取目录]
 						appName := filepath.Base(zipFilePath)
 						podName, err := utils.GetFileNameWithoutExt(event.Name)
 						if err != nil {
@@ -71,8 +71,12 @@ func WatchFiles() {
 						}
 
 						// 获取名称空间名字
-						nsName, _ := k8sUtils.GetPodNamespace(clientset, podName)
+						nsName, err := k8sUtils.GetPodNamespace(clientset, podName)
+						if err != nil {
+							logrus.Printf("获取名称空间名字 Error: %s", err)
+						}
 
+						// 上传文件到OSS
 						// event.Name 监听的文件绝对路径
 						err, ossURL := cli.UPload(appName, zipFilePath)
 						if err != nil {
