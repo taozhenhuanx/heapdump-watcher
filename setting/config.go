@@ -31,22 +31,17 @@ func InitConf() {
 		logrus.Error("unmarshal conf failed, err:", err)
 		return
 	}
+	logrus.Infof("使用的配置文件：%s", viper.ConfigFileUsed())
 
-	// 监控配置文件变化
+	// 开启配置文件监控（热重载）
 	viper.WatchConfig()
-
-	// 注意！！！配置文件发生变化后要同步到全局变量Conf
-	viper.OnConfigChange(func(in fsnotify.Event) {
-		// 日志记录
-		logrus.Info("...配置文件已被修改...")
-
-		// 配置文件发生变化后要同步到全局变量Conf
+	viper.OnConfigChange(func(e fsnotify.Event) {
+		logrus.Infof("配置文件 %s 发生修改，事件：%v", e.Name, e.Op)
+		// 重新解析配置更新全局变量
 		if err := viper.Unmarshal(Conf); err != nil {
-			logrus.Error("unmarshal conf failed, err:", err)
+			logrus.Errorf("热重载配置失败: %v", err)
 			return
 		}
-
-		// 到时候自动重启程序？？？
-		// 有待编写
+		logrus.Info("配置热重载成功")
 	})
 }

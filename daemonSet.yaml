@@ -95,15 +95,14 @@ spec:
       serviceAccountName: heapdump-watcher  
       containers:  
         - name: heapdump-watcher  
-          image: registry.cn-hangzhou.aliyuncs.com/zhenhuan/heapdump-watcher:v1
+          image: registry.cn-hangzhou.aliyuncs.com/heian99/heapdump-watcher:v3
           volumeMounts:  
             - name: logs  
               mountPath: /data/logs  
               readOnly: false  
-            - name: config  
-              mountPath: /app/conf/heapdump-watcher.yaml  
-              subPath: heapdump-watcher.yaml  
-              readOnly: true  
+            - name: config
+              mountPath: /app/conf  # 挂载整个目录, 为了配置热加载
+              readOnly: true
           env:  
             - name: NODE_NAME  
               valueFrom:  
