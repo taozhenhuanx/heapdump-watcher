@@ -10,7 +10,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func SendDingTalk(msg, env, podName, ossURL, nsName string) error {
+func SendDingTalk(msg, env, ossURL, podName, nsName string) error {
 	webHook := fmt.Sprintf("https://oapi.dingtalk.com/robot/send?access_token=%s", setting.Conf.AlarmMedium.DingTalkToken)
 
 	// 构造告警标题和 Markdown 内容

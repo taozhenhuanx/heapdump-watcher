@@ -48,5 +48,15 @@ func InitConf() {
 
 		// 到时候自动重启程序？？？
 		// 有待编写
+		viper.WatchConfig()
+		viper.OnConfigChange(func(e fsnotify.Event) {
+			logrus.Info("配置文件 %s 发生修改", e.Name)
+			// 配置文件发生变化后要同步到全局变量Conf
+			if err := viper.Unmarshal(Conf); err != nil {
+				logrus.Error("热重载配置失败, err:", err)
+				return
+			}
+			logrus.Info("配置文件 %s 热重载成功", e.Name)
+		})
 	})
 }
