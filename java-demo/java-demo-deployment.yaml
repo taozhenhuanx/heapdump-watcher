@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: java-app
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: java-app
+  template:
+    metadata:
+      labels:
+        app: java-app
+    spec:
+      containers:
+        - name: java-app
+          image: registry.cn-hangzhou.aliyuncs.com/heian99/java-demo:v4  # 请替换成你实际的镜像地址
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: heapdump-volume
+              mountPath: /data/heapdump # 请替换成你在heaodump中conf定义的路径，必须统一才能触发
+      volumes:
+        - name: heapdump-volume
+          hostPath:
+            path: /data/heapdump   # 请替换成你在heaodump中conf定义的路径，必须统一才能触发
+            type: DirectoryOrCreate
+
