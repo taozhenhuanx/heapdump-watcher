@@ -1,0 +1,4 @@
+FROM openjdk:8u111-jdk
+COPY demo-0.0.1-SNAPSHOT.jar /app/app.jar
+# 使用shell形式的CMD，这样环境变量会被shell解析
+CMD java -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/data/heapdump/${POD_NAME}.hprof -jar /app/app.jar
