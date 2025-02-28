@@ -17,6 +17,9 @@ import (
 	"github.com/fsnotify/fsnotify"
 )
 
+// 统计prof 文件生成次数
+var AlertCount float64
+
 // event.Name 是当前正在被监听的文件路径+文件名
 func WatchFiles(watcher *fsnotify.Watcher) {
 	// 添加监听目录
@@ -40,7 +43,7 @@ func WatchFiles(watcher *fsnotify.Watcher) {
 					// 检测到新文件创建 (strings.HasSuffix函数检查prof后缀)
 					if strings.HasSuffix(event.Name, "prof") {
 						logrus.Printf("检测到新的heap dump文件: %s", event.Name)
-
+						AlertCount++
 						// 等待文件写入完成
 						if ok := isFileComplete(event.Name, 30*time.Second, 2*time.Second); !ok {
 							logrus.Errorf("等待文件完成失败: %v", ok)
