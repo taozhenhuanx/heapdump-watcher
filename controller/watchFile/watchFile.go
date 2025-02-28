@@ -18,24 +18,21 @@ import (
 )
 
 // event.Name 是当前正在被监听的文件路径+文件名
-func WatchFiles() {
-	// 创建一个监听器
-	watcher, err := fsnotify.NewWatcher()
-	if err != nil {
-		logrus.Errorf("Failed to create fsnotify watcher: %v", err)
+func WatchFiles(watcher *fsnotify.Watcher) {
+	// 添加监听目录
+	if err := watcher.Add(setting.Conf.FilePath.WatchPath); err != nil {
+		logrus.Fatal("Add failed:", err)
 	}
-	defer watcher.Close()
-
-	done := make(chan bool)
+	// done := make(chan bool)
 	// 开始监听事件
 	go func() {
-		defer close(done)
+		// defer close(done)
 		for {
 			select {
 			// watcher.Events 事件
 			case event, ok := <-watcher.Events:
 				if !ok {
-					logrus.Errorf("watcher Events Error")
+					logrus.Errorf("watcher Events 通道已关闭")
 					return
 				}
 				// 判断监听事件是Create
@@ -46,7 +43,7 @@ func WatchFiles() {
 
 						// 等待文件写入完成
 						if ok := isFileComplete(event.Name, 30*time.Second, 2*time.Second); !ok {
-							logrus.Errorf("等待文件完成失败: %v", err)
+							logrus.Errorf("等待文件完成失败: %v", ok)
 							continue
 						}
 
@@ -105,13 +102,9 @@ func WatchFiles() {
 		}
 	}()
 
-	// 添加监听目录
-	if err := watcher.Add(setting.Conf.FilePath.WatchPath); err != nil {
-		logrus.Fatal("Add failed:", err)
-	}
 	logrus.Println("heapdump-watcher 程序已经启动")
 	// 永久阻塞 main goroutine
-	<-done
+	// <-done
 }
 
 // 判断文件是否写入完成
