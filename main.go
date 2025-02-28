@@ -5,6 +5,9 @@ import (
 	"heapdump_watcher/controller/watchFile"
 	"heapdump_watcher/setting"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/prometheus/client_golang/prometheus"
@@ -36,4 +39,10 @@ func main() {
 	if err := http.ListenAndServe(":9889", nil); err != nil {
 		logrus.Fatal("ListenAndServe failed: ", err)
 	}
+
+	// 设置信号处理，等待程序退出
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+	// 等待信号
+	<-sigs
 }

@@ -27,5 +27,5 @@ alarmEmail:
      - "619231775@qq.com"
 
 filePath:
-   watch_path: "./"
+   watch_path: "./test-file"
    kube_conf: "conf/k8s-config"
