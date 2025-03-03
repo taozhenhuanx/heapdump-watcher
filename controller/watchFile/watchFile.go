@@ -18,10 +18,16 @@ import (
 )
 
 // 统计prof 文件生成次数
-var AlertCount float64
+var (
+	PodInfo (map[string]float64)
+	Count   int
+)
 
 // event.Name 是当前正在被监听的文件路径+文件名
 func WatchFiles(watcher *fsnotify.Watcher) {
+	PodInfo = make(map[string]float64)
+	Count = 1
+
 	// 添加监听目录
 	if err := watcher.Add(setting.Conf.FilePath.WatchPath); err != nil {
 		logrus.Fatal("Add failed:", err)
@@ -43,7 +49,6 @@ func WatchFiles(watcher *fsnotify.Watcher) {
 					// 检测到新文件创建 (strings.HasSuffix函数检查prof后缀)
 					if strings.HasSuffix(event.Name, "prof") {
 						logrus.Printf("检测到新的heap dump文件: %s", event.Name)
-						AlertCount++
 						// 等待文件写入完成
 						if ok := isFileComplete(event.Name, 30*time.Second, 2*time.Second); !ok {
 							logrus.Errorf("等待文件完成失败: %v", ok)
@@ -60,18 +65,23 @@ func WatchFiles(watcher *fsnotify.Watcher) {
 						//  appName OSS的URL  [filepath.Dir 获取目录]
 						appName := filepath.Base(zipFilePath)
 						podName, err := utils.GetFileNameWithoutExt(event.Name)
+
+						// 把pod 名字存到map里面
+						// 查（Lookup）：查找Map中的键对应的值；
+						if _, exists := PodInfo[podName]; !exists {
+							PodInfo[podName] = float64(Count)
+						} else {
+							Count++
+							PodInfo[podName] = float64(Count)
+						}
+
 						if err != nil {
 							logrus.Errorf("GetFileNameWithoutExt: %v", err)
 							continue
 						}
-						// k8s cient-go
-						clientset, err := setting.ReadKubeConf()
-						if err != nil {
-							logrus.Errorf("ReadKubeConf Error: %s", err)
-						}
 
 						// 获取名称空间名字
-						nsName, err := k8sUtils.GetPodNamespace(clientset, podName)
+						namespace, err := k8sUtils.GetPodNamespace(setting.Clientset, podName)
 						if err != nil {
 							logrus.Errorf("获取名称空间名字 Error: %s", err)
 						}
@@ -85,7 +95,7 @@ func WatchFiles(watcher *fsnotify.Watcher) {
 						}
 
 						// 发送告警通知 ossURL, podName, nsName
-						if err := sendAlert.SendAlertType(ossURL, podName, nsName); err != nil {
+						if err := sendAlert.SendAlertType(ossURL, podName, namespace); err != nil {
 							logrus.Errorf("发送告警失败: %s", err)
 							continue
 						}

@@ -21,11 +21,15 @@ require (
 )
 */
 
-func ReadKubeConf() (clientset *kubernetes.Clientset, err error) {
-	var (
-		config     *rest.Config // 可以在集群内部访问,也可以在集群外部访问。集群内部是在Pod中访问
-		kubeconfig *string      // 集群外部是通过KubeConfig访问(Kubelet)
-	)
+var (
+	config     *rest.Config // 可以在集群内部访问,也可以在集群外部访问。集群内部是在Pod中访问
+	kubeconfig *string      // 集群外部是通过KubeConfig访问(Kubelet)
+	Clientset  *kubernetes.Clientset
+	err        error
+)
+
+func ReadKubeConf() (*kubernetes.Clientset, error) {
+
 	// 获取kubeconfig配置文件------这种方式是通过kubelet类型形式获取clientset
 	if home := homeDir(); home != "" {
 		// 如果home不等于空,在Linux上应该是等于/root,那么就拼接一个全路径 /root/.kube/config
@@ -51,11 +55,11 @@ func ReadKubeConf() (clientset *kubernetes.Clientset, err error) {
 	}
 
 	// 创建 Clientset 对象
-	if clientset, err = kubernetes.NewForConfig(config); err != nil {
+	if Clientset, err = kubernetes.NewForConfig(config); err != nil {
 		return nil, fmt.Errorf("无法创建Clientset: %v", err)
 	}
 
-	return clientset, nil
+	return Clientset, nil
 }
 
 // 获取kubeconfig文件的父路径

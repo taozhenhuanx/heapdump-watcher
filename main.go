@@ -20,6 +20,9 @@ func main() {
 	setting.InitConf()
 	// logrus.Infoln("渲染到结构体的参数：", setting.Conf)
 
+	// k8s cient-go
+	setting.ReadKubeConf()
+
 	// 创建一个监听器
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {

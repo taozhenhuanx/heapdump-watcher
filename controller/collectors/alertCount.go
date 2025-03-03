@@ -1,9 +1,12 @@
 package collectors
 
 import (
+	"heapdump_watcher/controller/k8sUtils"
 	"heapdump_watcher/controller/watchFile"
+	"heapdump_watcher/setting"
 
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/sirupsen/logrus"
 )
 
 /*
@@ -21,10 +24,10 @@ type AlertCountCollector struct {
 func NewAlertCountCollector() *AlertCountCollector {
 	return &AlertCountCollector{
 		alertCount: prometheus.NewDesc(
-			"oom_alert_count",            // 指标名称
-			"Total number of OOM alerts", // 指标的帮助信息
-			nil,                          // 标签列表（nil 表示不使用标签）
-			nil,                          // const 标签（nil 表示不使用 const 标签）
+			"oom_alert_count",                     // 指标名称
+			"Total number of OOM alerts",          // 指标的帮助信息
+			[]string{"pod_name", "pod_namespace"}, // 标签列表  podName="xxx"
+			nil,                                   // const 标签（nil 表示不使用 const 标签）
 		),
 	}
 }
@@ -39,26 +42,12 @@ func (c *AlertCountCollector) Describe(descs chan<- *prometheus.Desc) {
 // Collect 实现了 prometheus.Collector 接口的 Collect 方法，用于收集当前的 OOM Alert 计数值。
 // 收集的值会被写入到指定的 prometheus.Metric 通道中。
 func (c *AlertCountCollector) Collect(metrics chan<- prometheus.Metric) {
-	// 获取真实的 OOM Alert 的次数
-	alertCount := watchFile.AlertCount
-	metrics <- prometheus.MustNewConstMetric(c.alertCount, prometheus.CounterValue, alertCount)
-}
+	for podName, oomCount := range watchFile.PodInfo {
+		ns, err := k8sUtils.GetPodNamespace(setting.Clientset, podName)
+		if err != nil {
+			logrus.Errorf("获取名称空间名字 Error: %s", err)
+		}
 
-/*
-	暂时不需要
-	WriteCurrentCount 是一个帮助函数，用于将当前的 OOM Alert 计数值写入到指定的通道中。
-	它将创建一个新的 ConstMetric 并将其发送到通道。
-	这个函数可以被 Collect 方法调用，以避免代码重复。
-	func WriteCurrentCount(desc *prometheus.Desc, count float64, metrics chan<- prometheus.Metric) {
-		// 使用 prometheus.MustNewConstMetric 创建一个新的 ConstMetric。
-		// 这里使用 CounterValue 类型，因为 OOM Alert 的次数是一个累计计数器。
-		metric := prometheus.MustNewConstMetric(
-			desc,                    // 指标描述符
-			prometheus.CounterValue, // 指标类型为 Counter
-			count,                   // 当前的 OOM Alert 计数值
-		)
-
-		// 将创建的 metric 发送到指定的通道。
-		metrics <- metric
+		metrics <- prometheus.MustNewConstMetric(c.alertCount, prometheus.CounterValue, oomCount, podName, ns)
 	}
-*/
+}
